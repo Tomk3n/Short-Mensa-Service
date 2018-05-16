@@ -7,16 +7,14 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello_world():
+def start():
     return '<a href="/mensa">Mensa</a>'
 
 
 @app.route('/mensa')
 def get_mensa_plan():
     url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/'
-    response = urllib.request.urlopen(url)
-    data = response.read()
-    text = data.decode('utf-8')
+    text = urllib.request.urlopen(url).read().decode('utf-8')
 
     parsed_html = BeautifulSoup(text, "html.parser")
     result = parsed_html.body.findAll('table', attrs={'class': 'table module-food-table'})
@@ -36,7 +34,7 @@ def get_mensa_plan():
 
     for i in string:
         print(i)
-    return json.dumps(string, sort_keys=True, indent=4)
+    return json.dumps(string, sort_keys=True, indent=4, ensure_ascii=False).encode('utf8')
 
 
 if __name__ == '__main__':
