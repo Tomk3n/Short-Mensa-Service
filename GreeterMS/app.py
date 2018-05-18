@@ -13,20 +13,20 @@ file = 'greeterMessage.txt'
 # Handling messages
 class Message(object):
     def get(self):
-        fileContent = open(file, 'r')
+        file_content = open(file, 'r')
 
-        message = fileContent.read()
+        message = file_content.read()
 
-        fileContent.close()
+        file_content.close()
         return message
 
     def set(self, data):
-        fileContent = open(file, 'w')
+        file_content = open(file, 'w')
 
         message = data
 
-        fileContent.write(message)
-        fileContent.close()
+        file_content.write(message)
+        file_content.close()
         return None, 204
 
 
@@ -39,8 +39,9 @@ class Getter(Resource):
 
 
 # set message
-@ns.route('/setter')
-@ns.param('payload', "Greeter message")
+@ns.route('/setter/<string:payload>',
+          methods=['POST'])
+@ns.param('payload', 'Greeter message')
 class Setter(Resource):
     def post(self, payload):
         msg = Message()
