@@ -1,34 +1,50 @@
-from flask import Flask, Request
-from flask_restplus import Resource, Api
+from flask import Flask
+from flask_restplus import Resource, Api, reqparse
 
 app = Flask(__name__)                  #  Create a Flask WSGI application
 api = Api(app)                         #  Create a Flask-RESTPlus API
 
-ns = api.namespace('greeter', description='Greeter Microservice')
+ns = api.namespace('greeter', title='Greeter Microservice',
+                    description='This microservice handles the greeting message.')
 
-@ns.route('/data')
-class Data(Resource):
+file = 'greeterMessage.txt'
+
+
+# Handling messages
+class Message(object):
     def get(self):
-        file = 'greeterMessage.txt'
         fileContent = open(file, 'r')
+
         message = fileContent.read()
+
         fileContent.close()
+        return message
 
-        return {"message": message}
-
-
-@ns.route('/set')
-class Setter(Resource):
-    def post(self):
-        file = 'greeterMessage.txt'
+    def set(self, data):
         fileContent = open(file, 'w')
 
-        args = Request.args
+        message = data
 
-        fileContent.write()
+        fileContent.write(message)
         fileContent.close()
-
         return None, 204
+
+
+# return message
+@ns.route('/getter')
+class Getter(Resource):
+    def get(self):
+        msg = Message()
+        return {"message": msg.get()}
+
+
+# set message
+@ns.route('/setter')
+@ns.param('payload', "Greeter message")
+class Setter(Resource):
+    def post(self, payload):
+        msg = Message()
+        return msg.set(payload)
 
 
 if __name__ == '__main__':
