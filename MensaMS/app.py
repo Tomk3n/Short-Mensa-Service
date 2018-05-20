@@ -9,11 +9,6 @@ api = Api(app)                         #  Create a Flask-RESTPlus API
 
 ns = api.namespace('mensa', title='Mensa Microservice', description='This microservice returns the current menu')
 
-menu_model = ns.model('menu_model', {
-                'Gericht': fields.String,
-                'Preise': fields.List(fields.String)
-            })
-
 
 @ns.route('/getter')
 class Data(Resource):
@@ -24,10 +19,10 @@ class Data(Resource):
         # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-12'
 
         # normal day
-        url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-18'
+        # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-18'
 
         # no data
-        # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-21'
+        url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-21'
         # ---------------------------
 
         # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/'
@@ -36,14 +31,10 @@ class Data(Resource):
         parsed_html = BeautifulSoup(text, "html.parser")
         result = parsed_html.body.findAll('table', attrs={'class': 'table module-food-table'})
 
-        string = []
+        mensa_obj = {}
+
         for i in result:
-            element_result = []
-
             component = i.find_all('th')
-            element_result.append(component[0].text)
-
-            menu_list = []
 
             rows = i.find_all('tr')
             for row in rows:
@@ -52,34 +43,28 @@ class Data(Resource):
                 if not menu:
                     continue
 
+                menu_obj = {}
                 menu_name = menu.text.split('(', 1)[0]
-                # print(menu_name)
-
-                menu_list.append(menu_name.replace("\r\n  ", "").replace("\xa0€", ""))
+                menu_obj["Gericht"] = menu_name
 
                 price = row.find_all('td', attrs={'class':'hidden-xs', 'style':'text-align:center'})
                 pricelist = []
                 for j in price:
                     pricelist.append(j.text.replace("\xa0€", ""))
 
-                    menu_list.append(pricelist)
-            element_result.append(menu_list)
-            string.append(element_result)
+                menu_obj["Student"] = pricelist[0]
+                menu_obj["Mitarbeiter"] = pricelist[1]
+                menu_obj["Gast"] = pricelist[2]
 
-        for i in string:
-            print(i)
-            # print(json.dumps(string, indent=4))
+                mensa_obj[component[0].text] = menu_obj
 
-        if not string:
+        if not mensa_obj:
             return None, 204
         else:
-            return string
-            #return json.dumps(marshal(string), indent=4)
+            #return string
+            print(json.dumps(mensa_obj, indent=4))
+            return json.dumps(mensa_obj, indent=4)
 
-
-    def serializer(self, data):
-
-        return ""
 
 
 if __name__ == '__main__':
