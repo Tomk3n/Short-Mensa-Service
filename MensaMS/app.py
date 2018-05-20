@@ -1,11 +1,11 @@
-from flask import Flask
-from flask_restplus import Resource, Api, fields, marshal
+from flask import Flask, make_response
+from flask_restplus import Resource, Api
 from bs4 import BeautifulSoup
 import urllib.request
 import json
 
-app = Flask(__name__)                  #  Create a Flask WSGI application
-api = Api(app)                         #  Create a Flask-RESTPlus API
+app = Flask(__name__)
+api = Api(app)
 
 ns = api.namespace('mensa', title='Mensa Microservice', description='This microservice returns the current menu')
 
@@ -22,10 +22,10 @@ class Data(Resource):
         # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-18'
 
         # no data
-        url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-21'
+        # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-21'
         # ---------------------------
 
-        # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/'
+        url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/'
         text = urllib.request.urlopen(url).read().decode('utf-8')
 
         parsed_html = BeautifulSoup(text, "html.parser")
@@ -38,7 +38,7 @@ class Data(Resource):
 
             rows = i.find_all('tr')
             for row in rows:
-                menu = row.find('td', attrs={'style':'width:70%'})
+                menu = row.find('td', attrs={'style': 'width:70%'})
 
                 if not menu:
                     continue
@@ -47,7 +47,7 @@ class Data(Resource):
                 menu_name = menu.text.split('(', 1)[0]
                 menu_obj["Gericht"] = menu_name
 
-                price = row.find_all('td', attrs={'class':'hidden-xs', 'style':'text-align:center'})
+                price = row.find_all('td', attrs={'class': 'hidden-xs', 'style': 'text-align:center'})
                 pricelist = []
                 for j in price:
                     pricelist.append(j.text.replace("\xa0€", ""))
@@ -61,12 +61,12 @@ class Data(Resource):
         if not mensa_obj:
             return None, 204
         else:
-            #return string
-            print(json.dumps(mensa_obj, indent=4))
-            return json.dumps(mensa_obj, indent=4)
+            return_json = make_response(json.dumps(mensa_obj, indent=4))
+            return_json.headers['content-type'] = 'application/json'
 
+            print(return_json)
+            return return_json
 
 
 if __name__ == '__main__':
     app.run()
-
