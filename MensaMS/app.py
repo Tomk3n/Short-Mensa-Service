@@ -1,5 +1,5 @@
 from flask import Flask, make_response
-from flask_restplus import Resource, Api
+from flask_restplus import Resource, Api, marshal, fields, marshal_with
 from bs4 import BeautifulSoup
 import urllib.request
 import json
@@ -9,9 +9,27 @@ api = Api(app)
 
 ns = api.namespace('mensa', title='Mensa Microservice', description='This microservice returns the current menu')
 
+menu_model = ns.model('MenuModel', {
+        'Gericht': fields.String,
+        'Student': fields.String,
+        'Mitarbeiter': fields.String,
+        'Gast': fields.String
+        })
+
+model = ns.model('Model', {
+        'Tellergericht': fields.List(fields.Nested(menu_model)),
+        'Komponente 1': fields.Nested(menu_model),
+        'Komponente 2': fields.Nested(menu_model),
+        'Nudeltheke': fields.Nested(menu_model),
+        'Beilagen': fields.List(fields.Nested(menu_model)),
+        'Gemüse': fields.List(fields.Nested(menu_model)),
+        'Salate und Deserts': fields.Nested(menu_model)
+        })
+
 
 @ns.route('/getter')
 class Data(Resource):
+    @ns.marshal_with(model)
     def get(self):
         # debug sites
         # ---------------------------
@@ -19,13 +37,13 @@ class Data(Resource):
         # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-12'
 
         # normal day
-        # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-18'
+        url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-18'
 
         # no data
         # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-21'
         # ---------------------------
 
-        url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/'
+        # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/'
         text = urllib.request.urlopen(url).read().decode('utf-8')
 
         parsed_html = BeautifulSoup(text, "html.parser")
@@ -63,11 +81,11 @@ class Data(Resource):
         if not mensa_obj:
             return None, 204
         else:
-            return_json = make_response(json.dumps(mensa_obj, indent=4))
-            return_json.headers['content-type'] = 'application/json'
+            # return_json = make_response(json.dumps(mensa_obj, indent=4))
+            # return_json.headers['content-type'] = 'application/json'
 
-            print(return_json)
-            return return_json
+            return mensa_obj
+            # return return_json
 
 
 if __name__ == '__main__':
