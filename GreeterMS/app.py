@@ -1,5 +1,6 @@
 from flask import Flask
-from flask_restplus import Resource, Api, reqparse
+from flask_restplus import Resource, Api, marshal, fields
+import json
 
 app = Flask(__name__)                  #  Create a Flask WSGI application
 api = Api(app)                         #  Create a Flask-RESTPlus API
@@ -8,6 +9,10 @@ ns = api.namespace('greeter', title='Greeter Microservice',
                     description='This microservice handles the greeting message.')
 
 file = 'greeterMessage.txt'
+
+model = ns.model('Model', {
+        'message': fields.String
+        })
 
 
 # Handling messages
@@ -33,9 +38,12 @@ class Message(object):
 # return message
 @ns.route('/getter')
 class Getter(Resource):
+    @ns.marshal_with(model)
     def get(self):
         msg = Message()
-        return {"message": msg.get()}
+        result = {}
+        result['message'] = msg.get()
+        return result
 
 
 # set message
