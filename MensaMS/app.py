@@ -37,13 +37,13 @@ class Data(Resource):
         # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-12'
 
         # normal day
-        url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-18'
+        # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-18'
 
         # no data
         # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-21'
         # ---------------------------
 
-        # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/'
+        url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/'
         text = urllib.request.urlopen(url).read().decode('utf-8')
 
         parsed_html = BeautifulSoup(text, "html.parser")

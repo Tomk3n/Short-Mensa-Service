@@ -1,6 +1,5 @@
 from flask import Flask
-from flask_restplus import Resource, Api, marshal, fields
-import json
+from flask_restplus import Resource, Api, fields
 
 app = Flask(__name__)                  #  Create a Flask WSGI application
 api = Api(app)                         #  Create a Flask-RESTPlus API
@@ -41,8 +40,7 @@ class Getter(Resource):
     @ns.marshal_with(model)
     def get(self):
         msg = Message()
-        result = {}
-        result['message'] = msg.get()
+        result = {'message': msg.get()}
         return result
 
 

@@ -6,3 +6,8 @@ Diese beiden Microservices beinhalten einen Greeter, sowie die Ausgabe des Speis
 Entwickler:
  - Tim Heimann
  - Jan Füsting
+
+Ausführbar mit
+```
+python app.py
+```
