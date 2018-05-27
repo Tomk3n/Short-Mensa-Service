@@ -9,6 +9,7 @@ ns = api.namespace('greeter', title='Greeter Microservice',
 
 file = 'greeterMessage.txt'
 
+# Model for message
 model = ns.model('Model', {
         'message': fields.String
         })

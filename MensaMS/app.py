@@ -9,6 +9,7 @@ api = Api(app)
 
 ns = api.namespace('mensa', title='Mensa Microservice', description='This microservice returns the current menu')
 
+# Models for export
 menu_model = ns.model('MenuModel', {
         'Gericht': fields.String,
         'Student': fields.String,
@@ -27,6 +28,7 @@ model = ns.model('Model', {
         })
 
 
+# Path and class to get Speiseplan JSON
 @ns.route('/getter')
 class Data(Resource):
     @ns.marshal_with(model)
@@ -43,6 +45,7 @@ class Data(Resource):
         # url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/?datum=2018-05-21'
         # ---------------------------
 
+        # Download current page
         url = 'http://studwerk.fh-stralsund.de/essen/speiseplaene/mensa-stralsund/'
         text = urllib.request.urlopen(url).read().decode('utf-8')
 
@@ -51,22 +54,27 @@ class Data(Resource):
 
         mensa_obj = {}
 
+        # Parsing site
         for i in result:
             component = i.find_all('th')
 
+            # Get name of stations and create empty array of objects
             mensa_obj[component[0].text.rstrip()] = []
 
             rows = i.find_all('tr')
             for row in rows:
                 menu = row.find('td', attrs={'style': 'width:70%'})
 
+                # Checks if station has food
                 if not menu:
                     continue
 
+                # Create object for meal
                 menu_obj = {}
                 menu_name = menu.text.split('(', 1)[0].split(' \n', 1)[0]
                 menu_obj["Gericht"] = menu_name.replace("\r\n  ", "").rstrip()
 
+                # Get prices for meal
                 price = row.find_all('td', attrs={'class': 'hidden-xs', 'style': 'text-align:center'})
                 pricelist = []
                 for j in price:
@@ -79,13 +87,11 @@ class Data(Resource):
                 mensa_obj[component[0].text.rstrip()].append(menu_obj)
 
         if not mensa_obj:
+            # Couldn't parse information
             return None, 204
         else:
-            # return_json = make_response(json.dumps(mensa_obj, indent=4))
-            # return_json.headers['content-type'] = 'application/json'
-
+            # return parsed information
             return mensa_obj
-            # return return_json
 
 
 if __name__ == '__main__':
