@@ -1,3 +1,5 @@
+# Developed by Jan Füsting and Tim Heimann
+
 from flask import Flask
 from flask_restplus import Resource, Api, fields
 

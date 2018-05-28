@@ -1,8 +1,10 @@
-from flask import Flask, make_response
-from flask_restplus import Resource, Api, marshal, fields, marshal_with
+# Developed by Jan Füsting and Tim Heimann
+
+from flask import Flask
+from flask_restplus import Resource, Api, fields
 from bs4 import BeautifulSoup
 import urllib.request
-import json
+
 
 app = Flask(__name__)
 api = Api(app)
